@@ -1,0 +1,40 @@
+	@Override
+	public String nickNameCheckSelect(String nickName) {
+		//log.info("controller - service = {}" , nickName);
+		boolean tabooCheckBoolean = false;
+		String nickNameCheckFlag = signMemberMapper.nickNameCheckSelect(nickName);	
+		//log.info("tabooNickNameCheckFlag = {}" , tabooNickNameCheckList);
+		//log.info("nickNameCheckFlag = {}" , nickNameCheckFlag);
+		
+		if(nickName.length() >= 5 && nickNameCheckFlag == null) {
+		   //List<TabooWord> taboo = signMemberMapper.tabooNickNameCheckSelect();
+		   
+		   for(TabooWord tabooGet : taboo) {
+			   String NickNameContainCheck = tabooGet.getTabooWordCheck();
+			   if(nickName.contains(NickNameContainCheck)) {
+				   tabooCheckBoolean = true;
+				   break;
+			   }
+		   }
+		   /*
+		   HashMap<Integer , String> tabooNickNameCheckMap = 
+		   Iterator<Integer> tabooKey = tabooNickNameCheckMap.keySet().iterator();
+		   log.info("tototottotototototo ={} " , tabooKey);
+		 
+		   while(tabooKey.hasNext()) {
+			   String tabooWord = tabooNickNameCheckMap.get(tabooKey.next());
+			   tabooCheckBoolean = nickName.contains(tabooWord);
+			   log.info("break");
+			   //if(tabooCheckBoolean) break;
+		   }
+		   */
+		   if(tabooCheckBoolean) {
+				return "불건전한 닉네임입니다. 변경해주세요.";
+		   } else {
+				return "사용 가능한 닉네임입니다.";
+		   }
+		} else {
+			return "사용 불가능한 닉네임입니다.";
+		}
+	}
+
