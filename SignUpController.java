@@ -38,9 +38,14 @@ public class SignUpController {
 	
 	
 	private final SignService signService;
+	private BCryptPasswordEncoder bcryptPasswordEncoder;
+	
 	
 	@Autowired
-	private BCryptPasswordEncoder bcryptPasswordEncoder;
+	private void setBCryptPasswordEncoder(BCryptPasswordEncoder bcryptPasswordEncoder) {
+		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
+	}
+	
 	
 	@GetMapping()
 	public String signUpForm(Model model) {
@@ -48,11 +53,11 @@ public class SignUpController {
 		model.addAttribute("member" , new Member());
 		return "signUp/signUp";
 	}
-
+	
 	@PostMapping()
-	public String signUp(@Valid @ModelAttribute Member member , BindingResult bindingResult  , RedirectAttributes redirectAttribute) {
-				//회원검증  필터 생성하기
+	public String signUp(@Valid @ModelAttribute Member member , BindingResult bindingResult  , RedirectAttributes redirectAttribute , Model model) {
 				
+		        //회원검증  필터 생성하기
 				log.info("signUp member = {}" , member);
 				if(bindingResult.hasErrors()) {
 					log.info(" errors !");
@@ -62,16 +67,19 @@ public class SignUpController {
 					}
 					return "signUp/signUp";
 				}
+				
 				//성공시
 				//비밀번호 엔크립션
 				boolean singEmailCheck = signService.signEmailCheckSelect(member.getEmail());
 				boolean singNickNameCheck = signService.signNickNameCheckSelect(member.getNickName());
 				
 				if(singEmailCheck) {
+					model.addAttribute("errorAlert" , "error");
 					return "signUp/signUp";
 				}
 				
 				if(singNickNameCheck) {
+					model.addAttribute("errorAlert" , "error");
 					return "signUp/signUp";
 				}
 				
@@ -107,10 +115,10 @@ public class SignUpController {
 	@ResponseBody
 	@GetMapping("nickCheck")
 	public void nickNameCheck(String nickName, HttpServletResponse response) {
-		log.info("nickName = {}" , nickName);
+	//	log.info("nickName = {}" , nickName);
 		String data = signService.nickNameCheckSelect(nickName);
 		//log.info("emailCheck = {}" , email);
-		//log.info("data = {}" , data);
+	//	log.info("data = {}" , data);
 		try {
 			response.setContentType("text/plain;charset=utf-8");
 			PrintWriter pw = response.getWriter();

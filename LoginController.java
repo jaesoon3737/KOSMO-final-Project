@@ -34,6 +34,7 @@ import members.member.domain.LoginMember;
 import members.member.domain.Member;
 import members.member.domain.SessionLoginConst;
 import members.member.domain.SessionMember;
+import members.member.service.ForgetPasswordMailService;
 import members.member.service.LoginService;
 import members.member.utils.MessageUtils;
 import members.member.utils.UserSha256;
@@ -45,9 +46,8 @@ import members.member.utils.UserSha256;
 public class LoginController {
 	
 	private final LoginService loginService;
-	
-	@Autowired
 	private BCryptPasswordEncoder bcryptPasswordEncoder;
+	
 	@GetMapping()
 	public String loginForm(Model model) {
 		model.addAttribute("loginMember" , new LoginMember());
@@ -55,11 +55,11 @@ public class LoginController {
 		return "login/login";
 	}
 	
-
-	@GetMapping("/restPwd")
-	public String restPwdForm() {
-		return "login/restPwd";
+	@Autowired
+	private void setBCryptPasswordEncoder(BCryptPasswordEncoder bcryptPasswordEncoder) {
+		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
 	}
+	/*
 
 	@PostMapping()
 	public String Login(@Valid @ModelAttribute LoginMember loginMember
@@ -107,6 +107,7 @@ public class LoginController {
 		}
 	}
 	
+	
 	@PostMapping("/logouts")
 	public String logout(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
@@ -118,6 +119,6 @@ public class LoginController {
 		return "redirect:/index";
 	}
 	
-	
+	*/
 
 }

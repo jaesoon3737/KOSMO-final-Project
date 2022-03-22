@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -36,25 +38,23 @@ public class HomeController {
 		return "index";
 	}
 
-	
+
 	@RequestMapping("/jeju/member/error403")
 	public String error403() {
 		return "error403";
 	}
 	
-	@RequestMapping("admin")
+	@RequestMapping("/jeju/admin")
 	public String admin() {
 		return "sampleAdmin";	
 	}
 	
-	
-	@RequestMapping("logout")
-	public void logout() {
-		//return "sampleAdmin";
-	}
-	
-	@RequestMapping("user")
+	@RequestMapping("/jeju/user")
 	public String user() {
-		return "sampleUser";
+		return "sampleUser";	
 	}
+	
+
+	
+
 }

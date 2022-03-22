@@ -19,4 +19,6 @@ public class AdminController {
 	public String adminForm() {
 		return "admin/sampleAdmin";
 	} 
+	
+	
 }
