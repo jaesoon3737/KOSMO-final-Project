@@ -2,7 +2,6 @@ package jejufriends.member.contol;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -12,16 +11,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
 import jejufriends.member.domain.Member;
 import jejufriends.member.service.SignUpMemberService;
+import jejufriends.member.service.TabooWordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("jejufriends/signup")
 public class SignUpController {
 	
+	private final TabooWordService tabooWordService;
 	private final SignUpMemberService signService;
 	private BCryptPasswordEncoder bcryptPasswordEncoder;
 	
@@ -49,16 +51,12 @@ public class SignUpController {
 	}
 	
 	@PostMapping
-	public String signUp(@Valid @ModelAttribute Member member , BindingResult bindingResult  , RedirectAttributes redirectAttribute , Model model) {
+	public String signUp(@Valid @ModelAttribute Member member , BindingResult bindingResult  
+												, RedirectAttributes redirectAttribute , Model model) {
 				
 		        //회원검증  필터 생성하기
 				log.info("signUp member = {}" , member);
 				if(bindingResult.hasErrors()) {
-					log.info(" errors !");
-					List<ObjectError> errors = bindingResult.getAllErrors();
-					for(ObjectError error : errors) {
-						log.info("error = {}" , error.getDefaultMessage());
-					}
 					return "signup/signUp";
 				}
 				
@@ -83,7 +81,7 @@ public class SignUpController {
 				//가입
 				signService.addMember(member);
 				
-		return "redirect:/jeju/member/login";
+		return "redirect:/jejufriends/login";
 	} 
 
 	@ResponseBody
@@ -101,11 +99,26 @@ public class SignUpController {
 		}
 		
 	}
+	@ResponseBody
+	@RequestMapping("emailduplication")
+	public boolean emailDuplication(@RequestParam String email) {
+		String emailDuplication = signService.emailCheckSelect(email);
+		
+		if(emailDuplication.equals("회원 가입이 가능한 아이디입니다.")) {
+			return true;
+		} else if (emailDuplication.equals("이미 사용중인 아이디 입니다.")) {
+			return false;
+		} else {
+			return false;
+		}
+	}
+	
+	
 	
 	@ResponseBody
 	@GetMapping("nickCheck")
 	public void nickNameCheck(String nickName, HttpServletResponse response) {
-		String data = signService.nickNameCheckSelect(nickName);
+		String data = tabooWordService.nickNameCheckSelectTaBoo(nickName);
 		try {
 			response.setContentType("text/plain;charset=utf-8");
 			PrintWriter pw = response.getWriter();
@@ -115,4 +128,6 @@ public class SignUpController {
 		}
 		
 	}
+	
+	
 }

@@ -3,8 +3,6 @@ package jejufriends.member.contol;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +22,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import jejufriends.member.domain.EmailForgetPassword;
 import jejufriends.member.domain.ForgetMember;
 import jejufriends.member.service.ForgetPasswordMailService;
+import jejufriends.member.utils.CustomPattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +37,6 @@ public class ForgetPasswordController {
 	private final ForgetPasswordMailService forgetPasswordMailService;
 	private Map<String , String> matchingMap = new ConcurrentHashMap<String, String>();
 	private BCryptPasswordEncoder bcryptPasswordEncoder;
-	private static final Pattern IS_ONLY_NUMBER = Pattern.compile("^[0-9]*?");
 	 
 	@Autowired
 	private void setBCryptPasswordEncoder(BCryptPasswordEncoder bcryptPasswordEncoder) {
@@ -46,8 +44,7 @@ public class ForgetPasswordController {
 	}
 	
 	private boolean checkNumberValidation(String checkNumber) {
-		String check = checkNumber.toString();
-		return IS_ONLY_NUMBER.matcher(check).matches();
+		return CustomPattern.IS_ONLY_NUMBER.matcher(checkNumber).matches();
 	}
 	/**
 	 *      확인 해서 변경폼 보내주기 문제네 나중에 해결합시다. 메소드 한번하고 나면 컨커런트라서 사라짐 값이 다시 리셋됨.
