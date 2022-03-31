@@ -10,7 +10,7 @@ public class HomeController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String homes() {
-		return "index";
+		return "home";
 	}
 	@RequestMapping(value = "/jejufriends", method = RequestMethod.GET)
 	public String home() {

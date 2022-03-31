@@ -56,7 +56,6 @@ public class ForgetPasswordController {
 			boolean checkNumberValid = checkNumberValidation(checkNumber);
 			
 			if(!checkNumberValid) {
-				log.info("다 숫잔데요 왜;;");
 				redirectAttribute.addAttribute("errorAlert" , "errorNumber");
 				redirectAttribute.addFlashAttribute("email" , forgetMember.getEmail());
 				return "redirect:/jejufriends/forgetPassword/restPwd";

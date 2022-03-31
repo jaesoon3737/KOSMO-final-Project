@@ -19,12 +19,18 @@ public class JejuMemberLoginHandler implements AuthenticationSuccessHandler{
 		
 	    List<String> roleNames = new ArrayList<String>();
 		
+	    // 권한 목록 만들기 
 		authentication.getAuthorities().forEach(authority ->{
 			 roleNames.add(authority.getAuthority());
 		});
 		
 		if(roleNames.contains("ROLE_ADMIN")) {
-			response.sendRedirect("/jejufriends/admin");
+			response.sendRedirect("/jejufriends/admin/memberManagement");
+			return;
+		}
+		
+		if(roleNames.contains("ROLE_SUPERADMIN")) {
+			response.sendRedirect("/jejufriends/admin/memberManagement");
 			return;
 		}
 		

@@ -4,6 +4,10 @@ package jejufriends.member.contol;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -46,13 +50,17 @@ public class MyPageController {
 		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
 	}
 	
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@GetMapping
 	public String mypageForm(Model model) {
 		return "mypage/mypage";
 	}
 	
-	@Secured("ROLE_USER")
+	/**
+	 *   REST 처리 전에 사용하던 로직
+	 * */
+	
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@GetMapping("memberinfo")
 	public String myPageMemberInfoForm(@ModelAttribute("updatePassword") UpdatePassword updatePassword  , Principal principal , Model model , HttpServletRequest request) {
 		String email = principal.getName();
@@ -63,6 +71,13 @@ public class MyPageController {
 		String role = memberPageService.userInfoRole(email);
 		String phoneNumber = member.getPhoneNumber();
 		String ChangePhoneNumber = memberPageService.phoneNumberChangeStar(phoneNumber);
+		
+		if (member.getBirth() != null) {
+			Date beforeMemberBirth = member.getBirth();
+			LocalDate memberBirthLocal = LocalDate.ofInstant(beforeMemberBirth.toInstant(), ZoneId.systemDefault());
+			String memberBirth = memberBirthLocal.format(DateTimeFormatter.BASIC_ISO_DATE);
+			model.addAttribute("memberBirth" , memberBirth);
+		}
 		
 		model.addAttribute("ChangePhoneNumber" , ChangePhoneNumber);
 		model.addAttribute("emailChangeStar" , emailChangeStar);
@@ -91,7 +106,7 @@ public class MyPageController {
 		return "mypage/mypagememberinfo";
 	}
 	
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@GetMapping(value="nickNameTabooCheck")
 	public void nickNameTabooCheckAjax(@RequestParam String nickName , HttpServletResponse response){
 		String data = tabooWordService.nickNameCheckSelectTaBoo(nickName);
@@ -106,7 +121,7 @@ public class MyPageController {
 	
 	
 	// Binding 순서
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_USER" , "ROLE_ADMIN"}) 
 	@PostMapping("updatepassword")
 	public String updatePassword(@Valid @ModelAttribute UpdatePassword updatePassword , BindingResult bindingResult ,
 			RedirectAttributes redirectAttribute , Principal principal , Model model) {

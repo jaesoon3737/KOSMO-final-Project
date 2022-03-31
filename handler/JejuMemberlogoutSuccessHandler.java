@@ -37,7 +37,6 @@ public class JejuMemberlogoutSuccessHandler implements LogoutSuccessHandler{
         HttpSession session = request.getSession();
         String accessToken = (String)session.getAttribute("access_token");
         if(accessToken != null) {
-	       	 log.info("kakao logout ÇÕ´Ï´Ù.");
 	       	 kakaoLogout(accessToken);
         }
         

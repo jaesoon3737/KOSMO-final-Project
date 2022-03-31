@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import jejufriends.member.domain.DeleteUser;
 import jejufriends.member.domain.UpdatePassword;
@@ -44,7 +44,7 @@ public class MyPageRestAjaxController {
 		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
 	}
 	
-	@Secured("ROLE_USER")
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@PostMapping("updateinfo")
 	public String userInfoUpdateAjax(@Valid @ModelAttribute UserInfoChange userInfoChange ,
 												BindingResult bindingResult,  Principal principal){
@@ -61,7 +61,7 @@ public class MyPageRestAjaxController {
 		return result;
 	}
 	
-	@Secured("ROLE_USER") 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@PostMapping("userdelete")
 	public String userDeleteAjax(@Valid @RequestBody DeleteUser deleteUser , BindingResult bindingResult,
 										Principal principal , HttpServletRequest request , 
@@ -93,7 +93,7 @@ public class MyPageRestAjaxController {
 
 	}
 	
-	@Secured("ROLE_USER") 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@PostMapping("updatepassword")
 	public String userUpdatePassword(@Valid @ModelAttribute UpdatePassword updatePassword ,
 											BindingResult bindingResult , Principal principal , Model model) {
