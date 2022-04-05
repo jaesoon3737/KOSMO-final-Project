@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TabooWord {
-	private Integer TabooWordNumber;
-	private String TabooWordCheck;
+	private Integer tabooWordNumber;
+	private String tabooWordCheck;
 }

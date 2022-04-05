@@ -18,14 +18,15 @@ public class Paging {
 	private int start;
 	private int end;
 	private int cntPage = 5;
-	
 	private String keyword;
 	private String catgo = "idNumber";
 	private String sqlkeyword = "";
 	private String sqlcatgo = "idNumber";
+	private String columnOrderBy;
 	
 	
-	public Paging(int total, int nowPage, int cntPerPage, String catgo , String keyword) {
+	
+	public Paging(int total, int nowPage, int cntPerPage, String catgo , String keyword , String columnOrderBy) {
 		setNowPage(nowPage);
 		setCntPerPage(cntPerPage);
 		setTotal(total);
@@ -34,6 +35,7 @@ public class Paging {
 		calcStartEnd(getNowPage(), getCntPerPage());
 		setCatgo(catgo);
 		setKeyword(keyword);
+		setColumnOrderBy(columnOrderBy);
 	}
 	
 	public void calcLastPage(int total, int cntPerPage) {

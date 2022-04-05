@@ -29,6 +29,11 @@ import jejufriends.member.service.MemberPageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Commit Date : 2022.03.28
+ * @author jaesoon
+ *
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -38,12 +43,21 @@ public class MyPageRestAjaxController {
 	private final MemberPageService memberPageService;
 	private BCryptPasswordEncoder bcryptPasswordEncoder;
 	
-	
+	/**
+	 * 
+	 * @param bcryptPasswordEncoder : security password encryption
+	 */
 	@Autowired
 	private void setBCryptPasswordEncoder(BCryptPasswordEncoder bcryptPasswordEncoder) {
 		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
 	}
 	
+	/**
+	 * 
+	 * @param userInfoChange : Member(User) Information
+	 * @param bindingResult  : UserInfoChange Valid  email 
+	 * @return				 : 0 = 정보변경 성공 , 1 = 핸드폰 번호 오류 , 2 = 불건전한 닉네임 , 3 = 서버, 클라이언트 오류 , 4 = validation 오류
+	 */
 	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@PostMapping("updateinfo")
 	public String userInfoUpdateAjax(@Valid @ModelAttribute UserInfoChange userInfoChange ,
@@ -61,6 +75,17 @@ public class MyPageRestAjaxController {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param deleteUser     : delete Member
+	 * @param bindingResult  : deleteUser Valid = pwd ( pattern )
+	 * @param principal      : security get Session
+	 * @param request		 : logout request
+	 * @param authentication : logout
+	 * @return				 : 3 = Validation Error , 2 = password not match , 1 = success
+	 * @throws IOException   : request
+	 * @throws ServletException : request
+	 */
 	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@PostMapping("userdelete")
 	public String userDeleteAjax(@Valid @RequestBody DeleteUser deleteUser , BindingResult bindingResult,
@@ -83,9 +108,7 @@ public class MyPageRestAjaxController {
 	            } catch (Exception e) {
 	                e.printStackTrace();
 	            }
-	        } 
-	        
-	        
+	        }  
 			return String.valueOf(result);
 		} else {
 			return "2";
@@ -93,6 +116,14 @@ public class MyPageRestAjaxController {
 
 	}
 	
+	/**
+	 * 
+	 * @param updatePassword  : newPwd , pwd , pwdCheck validation
+	 * @param bindingResult   : validation
+	 * @param principal       : security get Session
+	 * @param model           :
+	 * @return				  : 2 , 3 = validation error , 1 = success , 4 = fail 
+	 */
 	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@PostMapping("updatepassword")
 	public String userUpdatePassword(@Valid @ModelAttribute UpdatePassword updatePassword ,

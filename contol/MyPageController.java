@@ -35,6 +35,12 @@ import jejufriends.member.service.TabooWordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
+/**
+ * Commit Date : 2022.03.27
+ * @author jaesoon
+ *
+ */
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -56,9 +62,6 @@ public class MyPageController {
 		return "mypage/mypage";
 	}
 	
-	/**
-	 *   REST 처리 전에 사용하던 로직
-	 * */
 	
 	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
 	@GetMapping("memberinfo")

@@ -7,13 +7,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import lombok.RequiredArgsConstructor;
 
-
+/**
+ * Commit Date : 2022.03.15
+ * @author jaesoon
+ *
+ */
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/jejufriends/member/withdraw")
 public class WithdrawController {
-	
+	/**
+	 * 
+	 * @return location withdraw form , next MyPageRestAjaxContoller
+	 */
 	@Secured({"ROLE_USER" , "ROLE_ADMIN"}) 
 	@GetMapping
 	public String MemberWithdraw() {

@@ -47,7 +47,7 @@ public class Member {
 	@NotEmpty(message="필수 입력 항목입니다.")
 	private String gender;
 	private Integer enabled;
-	private Integer failCount;
+	private Integer cautionCount;
     private Integer checkSnsId;
 	
 	public Member(String email , String pwd) {

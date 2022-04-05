@@ -26,14 +26,28 @@ import jejufriends.member.utils.CustomPattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
+/**
+ * Commit Date : 2022.03.27
+ * @author jaesoon
+ * 		   
+ * 			forgetPassword , findPassword
+ * 				check Exist Member
+ *				email Authentication Number 
+ *				change Password
+ */
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("jejufriends/forgetPassword")
 public class ForgetPasswordController {
 	
-	//testCode짤것
+
+	/**
+	 * testCode짤것  hashtable은 동기화가 걸려있어서 락이 있음. 따라서 멀티쓰레드에서 안정성을 보장해주지만 병목현상이 있음. 
+	 * Concurrent는 HashMap과 다르게 읽기는 동기화가 걸려있지 않지만 put에 동기화가 걸려있어서 락처리가 되기 때문에 싱크로나이즈드를 따로 처리하지않고 멀티 쓰레드 환경에서 안정성을 보장한다. 
+	 * 단, get을 쓸 때는 즉 읽기의 행동을 할 때에는 동기화가 적용되지 않는다.
+	 * 따라서 이메일처리시 Async 를 사용하여 처리하기 때문에 멀티쓰레드 환경에서 사용가능한 해쉬맵을 사용했어야 했기에 컨커런트 해쉬맵을 사용함.
+	 */
 	private final ForgetPasswordMailService forgetPasswordMailService;
 	private Map<String , String> matchingMap = new ConcurrentHashMap<String, String>();
 	private BCryptPasswordEncoder bcryptPasswordEncoder;
@@ -46,9 +60,14 @@ public class ForgetPasswordController {
 	private boolean checkNumberValidation(String checkNumber) {
 		return CustomPattern.IS_ONLY_NUMBER.matcher(checkNumber).matches();
 	}
+	
 	/**
-	 *      확인 해서 변경폼 보내주기 문제네 나중에 해결합시다. 메소드 한번하고 나면 컨커런트라서 사라짐 값이 다시 리셋됨.
-	 * */
+	 * 
+	 * @param forgetMember : requester
+	 * @param checkNumber  : email authentication number
+	 * @param redirectAttribute : for fail = restPwd , success = findPassword 
+	 * @return
+	 */
 	@PostMapping
 	public String findPasswordMapping(@ModelAttribute ForgetMember forgetMember , @RequestParam("checkNumber")String checkNumber , RedirectAttributes redirectAttribute) {
 		
@@ -61,8 +80,9 @@ public class ForgetPasswordController {
 				return "redirect:/jejufriends/forgetPassword/restPwd";
 			}
 			
-			//존재하면 true  integer 타입은 == 로하면 다르다고 나옴. string 처럼
+			//exist = true
 			boolean MemberExistCheck = forgetPasswordMailService.findByMember(forgetMemberEmail);	
+			
 			if(MemberExistCheck) {
 				if(checkNumber.equals(matchingMap.get(forgetMemberEmail))) {
 					redirectAttribute.addFlashAttribute("email" , forgetMember.getEmail());
@@ -71,21 +91,22 @@ public class ForgetPasswordController {
 				} else {
 					redirectAttribute.addAttribute("errorAlert" , "errorNumber");
 					redirectAttribute.addFlashAttribute("email" , forgetMember.getEmail());
-					log.warn("이메일 인증번호 오류 checkNumber = {} " , checkNumber);
-					log.warn("이메일 인증번호 오류 checkNumber12 = {} " , matchingMap.get(forgetMemberEmail));
 					return "redirect:/jejufriends/forgetPassword/restPwd";
 				}
 			} else {	
 				redirectAttribute.addAttribute("errorAlert" , "errorEmail");
-				log.warn("이메일 인증번호 실패 오류");
 				return "redirect:/jejufriends/forgetPassword/restPwd";
 			}
 		
 	}
 	
 	/**
-	 *      비밀번호 업데이트
-	 * */
+	 * 
+	 * @param forgetMember   : requester
+	 * @param bindingResult  : password Validation
+	 * @param model
+	 * @return               : fail = findPassword , success = login
+	 */
 	@PostMapping("update")
 	public String findPasswordUpdate(@Valid @ModelAttribute ForgetMember forgetMember ,
 			BindingResult bindingResult , Model model) {
@@ -96,15 +117,19 @@ public class ForgetPasswordController {
 			model.addAttribute("email" , forgetMember.getEmail());
 			return "login/findPassword";
 		}
-		log.warn("이메일 업데이트 오류");
+		
 		forgetMember.setPwd(settingPassword);
 		forgetPasswordMailService.updatePassword(forgetMember);
 		return "redirect:/jejufriends/login";
 	}
 	
 	/**
-	 *      비밀번호 찾는 폼 검증 및 리다이렉트 시 email 셋팅
-	 * */
+	 * 
+	 * @param model
+	 * @param email      :  email authentication number for email
+	 * @param errorAlert :  if not exist
+	 * @return
+	 */
 	@GetMapping("/restPwd")
 	public String restPwdForm(Model model ,@RequestParam(value="email" , required = false) String email ,@RequestParam(value="errorAlert" , required = false) String errorAlert) {		
 		if(email != null) {
@@ -129,19 +154,26 @@ public class ForgetPasswordController {
 		Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
 	
 		if(flashMap!=null) {
-         String  email =(String)flashMap.get("email");
-         model.addAttribute("email" , email);
+	         String  email =(String)flashMap.get("email");
+	         model.addAttribute("email" , email);
         }
+		
 		model.addAttribute("forgetMember" , new ForgetMember());
 		return "login/findPassword";
 	}
 	
-	//이메일 인증 ajax
+	/**
+	 * 
+	 * @param emailForgetPasswordVlid : email , password Validation , using pattern
+	 * @param bindingResult           : email , password Validation
+	 * @param model
+	 * @return
+	 */
 	@GetMapping
 	@ResponseBody
 	public String mailCheck(@Valid EmailForgetPassword emailForgetPasswordVlid ,BindingResult bindingResult , Model model) {
+		
 		if(bindingResult.hasErrors()) {
-			
 			if(emailForgetPasswordVlid.getEmail() != null) {
 				model.addAttribute("email" , emailForgetPasswordVlid.getEmail());	
 			}
@@ -155,6 +187,10 @@ public class ForgetPasswordController {
 	   return forgetPasswordMailService.joinEmail(email , randomNumber);				
 	}
 	
+	/**
+	 *  random authentication number create
+	 * @return
+	 */
 	private String makeRandomNumber() {
 		Random r = new Random();
 		int checkNum = r.nextInt(888888) + 111111;

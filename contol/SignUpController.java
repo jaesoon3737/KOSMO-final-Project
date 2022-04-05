@@ -17,15 +17,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 
 import jejufriends.member.domain.Member;
 import jejufriends.member.service.SignUpMemberService;
 import jejufriends.member.service.TabooWordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+/**
+ * Commit Date : 2022.03.13
+ * @author jaesoon
+ *
+ */
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -36,13 +38,20 @@ public class SignUpController {
 	private final SignUpMemberService signService;
 	private BCryptPasswordEncoder bcryptPasswordEncoder;
 	
-	
+	/**
+	 * 
+	 * @param bcryptPasswordEncoder  : security encryption
+	 */
 	@Autowired
 	private void setBCryptPasswordEncoder(BCryptPasswordEncoder bcryptPasswordEncoder) {
 		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
 	}
 	
-	
+	/**
+	 * 
+	 * @param model sign up form
+	 * @return
+	 */
 	@GetMapping
 	public String signUpForm(Model model) {
 		
@@ -50,40 +59,44 @@ public class SignUpController {
 		return "signup/signUp";
 	}
 	
+	/**
+	 * 
+	 * @param member			: sign up Member information , domain.member
+	 * @param bindingResult		: validation
+	 * @param model				: fail , return info
+	 * @return					: success -> login.jsp / fail -> return sign up
+	 */
 	@PostMapping
 	public String signUp(@Valid @ModelAttribute Member member , BindingResult bindingResult  
-												, RedirectAttributes redirectAttribute , Model model) {
+												, Model model) {
 				
-		        //회원검증  필터 생성하기
-				log.info("signUp member = {}" , member);
-				if(bindingResult.hasErrors()) {
-					return "signup/signUp";
-				}
-				
-				//성공시
-				//비밀번호 엔크립션
-				boolean singEmailCheck = signService.signEmailCheckSelect(member.getEmail());
-				boolean singNickNameCheck = signService.signNickNameCheckSelect(member.getNickName());
-				
-				if(singEmailCheck) {
-					model.addAttribute("errorAlert" , "error");
-					return "signup/signUp";
-				}
-				
-				if(singNickNameCheck) {
-					model.addAttribute("errorAlert" , "error");
-					return "signup/signUp";
-				}
-					
-				String encryPwd = bcryptPasswordEncoder.encode(member.getPwd());
-				member.setPwd(encryPwd);
-				
-				//가입
-				signService.addMember(member);
+		if(bindingResult.hasErrors()) {
+			return "signup/signUp";
+		}
+		
+		//성공시
+		//비밀번호 엔크립션
+		boolean singNickNameCheck = signService.signNickNameCheckSelect(member.getNickName());
+
+		if(singNickNameCheck) {
+			log.info("ddfdffdfd");
+			model.addAttribute("errorAlert" , "error");
+			return "signup/signUp";
+		}
+			
+		String encryPwd = bcryptPasswordEncoder.encode(member.getPwd());
+		member.setPwd(encryPwd);
+		
+		//가입
+		signService.addMember(member);
 				
 		return "redirect:/jejufriends/login";
 	} 
-
+    /**
+     * 
+     * @param email		: sign up email Duplication Check , key Up
+     * @param response  : response
+     */
 	@ResponseBody
 	@GetMapping("emailCheck")
 	public void emailCheck(String email , HttpServletResponse response) {
@@ -99,6 +112,12 @@ public class SignUpController {
 		}
 		
 	}
+	
+	/**
+	 * 
+	 * @param email  : sign up email Duplication Check  , Jquery Validation
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping("emailduplication")
 	public boolean emailDuplication(@RequestParam String email) {
@@ -114,7 +133,11 @@ public class SignUpController {
 	}
 	
 	
-	
+	/**
+	 * 
+	 * @param nickName  sign up nickName Duplication Check 
+	 * @param response
+	 */
 	@ResponseBody
 	@GetMapping("nickCheck")
 	public void nickNameCheck(String nickName, HttpServletResponse response) {
