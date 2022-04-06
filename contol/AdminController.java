@@ -1,5 +1,6 @@
 package jejufriends.member.contol;
 
+import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,9 +36,12 @@ import jejufriends.member.domain.Paging;
 import jejufriends.member.domain.PagingKeyword;
 import jejufriends.member.domain.TabooContainsMember;
 import jejufriends.member.domain.TabooWord;
+import jejufriends.member.domain.TodoList;
 import jejufriends.member.service.MemberManagementService;
+import jejufriends.member.service.SignUpMemberService;
 import jejufriends.member.service.SuspendAccountService;
 import jejufriends.member.service.TabooWordService;
+import jejufriends.member.service.TodoListService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,10 +67,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/jejufriends/admin")
 public class AdminController {
 	
+	private final TodoListService todoListService;
 	private final SuspendAccountService suspendAccountService; 
 	private final TabooWordService tabooWordService;
 	private final MemberManagementService memberManagementService;
-	
+	private final SignUpMemberService signUpMemberService;
 	/**
 	 * 
 	 * @param paging    : domain package pagingVO
@@ -262,11 +267,17 @@ public class AdminController {
 		AdminUserInfo member = memberManagementService.memberInfofind(email);
 		
 		Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
-
+		
+		
 		if(flashMap!=null) {		
 		    if (model.asMap().containsKey("org.springframework.validation.BindingResult")){
 		        model.addAttribute("org.springframework.validation.BindingResult.adminMemberInfoChange",
 		                model.asMap().get("org.springframework.validation.BindingResult"));
+		    }
+		    
+		    if (model.asMap().containsKey("nickNameDuplication")){
+		        model.addAttribute(" nickNameDuplication",
+		                model.asMap().get(" nickNameDuplication"));
 		    }
 		}
 		
@@ -283,13 +294,22 @@ public class AdminController {
 	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SUPERADMIN')")
 	@PostMapping("memberInfoChange")
 	public String memberInfoChange(@Valid @ModelAttribute AdminMemberInfoChange adminMemberInfoChange
-			, BindingResult bindingResult , RedirectAttributes redirectAttribute) {
+			, BindingResult bindingResult , RedirectAttributes redirectAttribute ) {
 		
 		if(bindingResult.hasErrors()) {
 			log.info("erorrrr = {}" , adminMemberInfoChange);
 			redirectAttribute.addFlashAttribute("org.springframework.validation.BindingResult" , bindingResult);
 			return "redirect:/jejufriends/admin/memberInfo/" + adminMemberInfoChange.getEmail();
 		}
+		
+		String nickName = adminMemberInfoChange.getNickName();
+		boolean nickNameDuplication = memberManagementService.nickNameDuplication(nickName);
+		
+		if(nickNameDuplication) {
+			redirectAttribute.addFlashAttribute("nickNameDuplication" , "1");
+			return "redirect:/jejufriends/admin/memberInfo/" + adminMemberInfoChange.getEmail();
+		}
+		
 		
 		log.info("dddd = {}" , adminMemberInfoChange);
 		memberManagementService.memberInfoChange(adminMemberInfoChange);
@@ -313,4 +333,54 @@ public class AdminController {
 		}
 	}
 	
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SUPERADMIN')")
+	@GetMapping("adminCalender")
+	public ModelAndView adminCalender() {
+		
+		List<TodoList> todolist = todoListService.adminCalenderSelect();
+		ModelAndView mv = new ModelAndView("admin/adminScheduleManagement" , "todolist" , todolist);
+		return mv;
+	}
+	
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SUPERADMIN')")
+	@PostMapping("schedule")
+	public String ToDoSchedule(String tododate , String content , String publicCheck , Principal principal) {
+		String email = principal.getName();
+		if(tododate == null) {
+			return "admin/adminScheduleManagement";
+		}
+		
+		if(publicCheck == null || publicCheck.equals("")) {
+			publicCheck = "privateChecking";
+		} 
+		
+		if(publicCheck != null) {
+			publicCheck = publicCheck.trim();
+			if (publicCheck.equals("on")) {
+				publicCheck = "publicChecking";
+			}
+		}
+		
+
+		todoListService.insert(tododate , email , content , publicCheck);
+		return "redirect:/jejufriends/admin/adminCalender";
+	}
+	
+	
+	/**
+	 * 
+	 * @param deleteTodoListNumber TodoList ListNumber
+	 * @return 0 success , 1 fail
+	 */
+	@ResponseBody
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SUPERADMIN')")
+	@GetMapping("deleteTodoList")
+	public String deleteTodoList(Integer deleteTodoListNumber) {
+		Integer result = todoListService.deleteTodoList(deleteTodoListNumber);
+		if(result >= 1) {
+			return "0";
+		} else {
+			return "1";
+		}
+	}
 }
