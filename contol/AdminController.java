@@ -71,7 +71,7 @@ public class AdminController {
 	private final SuspendAccountService suspendAccountService; 
 	private final TabooWordService tabooWordService;
 	private final MemberManagementService memberManagementService;
-	private final SignUpMemberService signUpMemberService;
+	
 	/**
 	 * 
 	 * @param paging    : domain package pagingVO
@@ -338,6 +338,7 @@ public class AdminController {
 	public ModelAndView adminCalender() {
 		
 		List<TodoList> todolist = todoListService.adminCalenderSelect();
+	
 		ModelAndView mv = new ModelAndView("admin/adminScheduleManagement" , "todolist" , todolist);
 		return mv;
 	}
@@ -346,8 +347,8 @@ public class AdminController {
 	@PostMapping("schedule")
 	public String ToDoSchedule(String tododate , String content , String publicCheck , Principal principal) {
 		String email = principal.getName();
-		if(tododate == null) {
-			return "admin/adminScheduleManagement";
+		if(tododate == null || tododate.equals("")) {
+			return "redirect:/jejufriends/admin/adminCalender";
 		}
 		
 		if(publicCheck == null || publicCheck.equals("")) {
@@ -363,6 +364,7 @@ public class AdminController {
 		
 
 		todoListService.insert(tododate , email , content , publicCheck);
+			
 		return "redirect:/jejufriends/admin/adminCalender";
 	}
 	
