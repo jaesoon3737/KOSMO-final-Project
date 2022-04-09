@@ -26,6 +26,7 @@ import jejufriends.member.domain.DeleteUser;
 import jejufriends.member.domain.UpdatePassword;
 import jejufriends.member.domain.UserInfoChange;
 import jejufriends.member.service.MemberPageService;
+import jejufriends.member.service.WithDrawAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MyPageRestAjaxController {
 	
 	private final MemberPageService memberPageService;
+	private final WithDrawAccountService withDrawAccountService;
 	private BCryptPasswordEncoder bcryptPasswordEncoder;
 	
 	/**
@@ -101,14 +103,19 @@ public class MyPageRestAjaxController {
 		
 		boolean pwdMatch = bcryptPasswordEncoder.matches(pwd , checkPwd);
 		if(pwdMatch) {
-			int result = memberPageService.userDelete(email);
-	        if (authentication != null && authentication.getDetails() != null) {
+			int result = withDrawAccountService.insertWithDrawAccount(email);
+			// security ROLE update -> ROLE_WITHDRAW
+			int resultUpdate = withDrawAccountService.updateWithDrawAccount(email);
+
+			//int result = memberPageService.userDelete(email);
+	        /*
+			if (authentication != null && authentication.getDetails() != null) {
 	            try {      
 	                 request.getSession().invalidate();
 	            } catch (Exception e) {
 	                e.printStackTrace();
 	            }
-	        }  
+	        }  */
 			return String.valueOf(result);
 		} else {
 			return "2";
