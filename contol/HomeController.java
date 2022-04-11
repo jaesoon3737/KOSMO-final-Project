@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/")
 public class HomeController {
 	
-	@RequestMapping(method = RequestMethod.GET)
-	public String homes() {
-		return "home";
-	}
 	@RequestMapping(value = "/jejufriends", method = RequestMethod.GET)
 	public String home() {
 		return "index";
 	}
 	
+	@RequestMapping(value = "/jejufriends/withdraw/withdrawClear")
+	public String withdrawClear() {
+		return "withdraw/withdrawClear";
+	}
 }

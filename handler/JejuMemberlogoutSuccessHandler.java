@@ -29,6 +29,7 @@ public class JejuMemberlogoutSuccessHandler implements LogoutSuccessHandler{
             try {      
                  log.info("logout ¼º°ø");
                  request.getSession().invalidate();
+           
             } catch (Exception e) {
                 e.printStackTrace();
             }

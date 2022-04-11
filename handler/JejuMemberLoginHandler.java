@@ -58,6 +58,11 @@ public class JejuMemberLoginHandler implements AuthenticationSuccessHandler{
 			return;
 		}
 		
+		
+		if(roleNames.contains("ROLE_WITHDRAW")) {
+			response.sendRedirect("/jejufriends/withdraw/withdrawClear");
+			return;
+		}
 		response.sendRedirect("/");
 	}
 	

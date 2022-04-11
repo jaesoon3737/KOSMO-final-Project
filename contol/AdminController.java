@@ -303,8 +303,10 @@ public class AdminController {
 		}
 		
 		String nickName = adminMemberInfoChange.getNickName();
+		nickName = nickName.trim();
+		log.info("nickName = {}" , nickName);
 		boolean nickNameDuplication = memberManagementService.nickNameDuplication(nickName);
-		
+		log.info("nickName  boolean = {}" ,nickNameDuplication);
 		if(nickNameDuplication) {
 			redirectAttribute.addFlashAttribute("nickNameDuplication" , "1");
 			return "redirect:/jejufriends/admin/memberInfo/" + adminMemberInfoChange.getEmail();

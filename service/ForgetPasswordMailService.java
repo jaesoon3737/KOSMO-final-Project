@@ -1,10 +1,12 @@
-package members.member.service;
+package jejufriends.member.service;
 
-import members.member.domain.ForgetMember;
+import jejufriends.member.domain.ForgetMember;
 
 public interface ForgetPasswordMailService {
-	String joinEmail(String email , Integer authNum);
+	
+	String joinEmail(String email , String authNum);
 	void mailSend(String setFrom, String toMail, String title, String Content);
-	boolean findMember(String email);
+	boolean findByMember(String email);
 	void updatePassword(ForgetMember forgetMember);
+	
 }

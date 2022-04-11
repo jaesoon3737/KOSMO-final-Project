@@ -111,8 +111,7 @@ public class ForgetPasswordController {
 	public String findPasswordUpdate(@Valid @ModelAttribute ForgetMember forgetMember ,
 			BindingResult bindingResult , Model model) {
 		String settingPassword = bcryptPasswordEncoder.encode(forgetMember.getPwd());
-		
-		
+
 		if(bindingResult.hasErrors()) {		
 			model.addAttribute("email" , forgetMember.getEmail());
 			return "login/findPassword";

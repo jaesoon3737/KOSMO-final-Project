@@ -5,6 +5,7 @@ import java.security.Principal;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -60,7 +61,7 @@ public class MyPageRestAjaxController {
 	 * @param bindingResult  : UserInfoChange Valid  email 
 	 * @return				 : 0 = 정보변경 성공 , 1 = 핸드폰 번호 오류 , 2 = 불건전한 닉네임 , 3 = 서버, 클라이언트 오류 , 4 = validation 오류
 	 */
-	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN" ,"ROLE_WITHDRAW"}) 
 	@PostMapping("updateinfo")
 	public String userInfoUpdateAjax(@Valid @ModelAttribute UserInfoChange userInfoChange ,
 												BindingResult bindingResult,  Principal principal){
@@ -88,7 +89,7 @@ public class MyPageRestAjaxController {
 	 * @throws IOException   : request
 	 * @throws ServletException : request
 	 */
-	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN" , "ROLE_WITHDRAW"}) 
 	@PostMapping("userdelete")
 	public String userDeleteAjax(@Valid @RequestBody DeleteUser deleteUser , BindingResult bindingResult,
 										Principal principal , HttpServletRequest request , 
@@ -108,14 +109,15 @@ public class MyPageRestAjaxController {
 			int resultUpdate = withDrawAccountService.updateWithDrawAccount(email);
 
 			//int result = memberPageService.userDelete(email);
-	        /*
+	        
 			if (authentication != null && authentication.getDetails() != null) {
-	            try {      
-	                 request.getSession().invalidate();
+	            try {
+	                request.getSession().invalidate();
+	                return "4";
 	            } catch (Exception e) {
 	                e.printStackTrace();
 	            }
-	        }  */
+	        }  
 			return String.valueOf(result);
 		} else {
 			return "2";
@@ -131,7 +133,7 @@ public class MyPageRestAjaxController {
 	 * @param model           :
 	 * @return				  : 2 , 3 = validation error , 1 = success , 4 = fail 
 	 */
-	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN" , "ROLE_WITHDRAW"}) 
 	@PostMapping("updatepassword")
 	public String userUpdatePassword(@Valid @ModelAttribute UpdatePassword updatePassword ,
 											BindingResult bindingResult , Principal principal , Model model) {

@@ -1,46 +1,43 @@
-package members.member.service;
+package jejufriends.member.service;
 
-import java.util.Random;
-
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import jejufriends.member.domain.ForgetMember;
+import jejufriends.member.repository.ForgetPasswordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import members.member.domain.ForgetMember;
-import members.member.mapper.ForgetPasswordMapper;
+
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ForgetPasswordMailServiceImpl implements ForgetPasswordMailService {
 	
-
 	private final JavaMailSender mailSender;
-	private final ForgetPasswordMapper forgetPasswordMapper;
+	private final ForgetPasswordRepository forgetPasswordRepository;
 	
-	//회원 가입 시 사용할 이메일 양식
+	//회원 가입 시 사용할 이메일 양식 너무느려서 비동기 
 	@Override
 	@Async("executor")
-	public String joinEmail(String email , Integer authNum ) {
+	public String joinEmail(String email , String authNum ) {
 		String setFrom = "jejufriends001@gmail.com"; //email-config에 설정한 자신의 이메일 주소를 입력.
 		String toMail = email; //수신받을 이메일
-		String title = "비밀번호 인증확인 번호입니다."; //이메일 제목
-		String content = "홈페이지를 방문해주셔서 감사합니다." +
+		String title = "Jeuju Frirends 비밀번호 변경 인증번호입니다."; //이메일 제목
+		String content = "저희 Jeuju Frirends 홈페이지를 이용해주셔서 감사합니다." +
 				"<br><br>" + 
+				"입력하실" + 
 				"인증 번호는 " + authNum + "입니다." + 
 				"<br>" + 
-				"해당 인증번호를 인증번호 확인란에 기입하여 주세요."; //이메일 내용 삽입
+				"해당 인증번호를 인증번호 확인란에 기입하여 주세요."; 
 		mailSend(setFrom, toMail, title, content);
-		return Integer.toString(authNum);
+		return authNum;
 	}
-	//비동기 메소드 관리하기  메소드 합쳐야할까 스레드가 다르게 배당되면?
+	
 	//이메일 전송 메서드
 	@Override
 	public void mailSend(String setFrom, String toMail, String title, String Content) {
@@ -51,7 +48,6 @@ public class ForgetPasswordMailServiceImpl implements ForgetPasswordMailService 
 			helper.setFrom(setFrom);
 			helper.setTo(toMail);
 			helper.setSubject(title);
-			//true전달 -> html형식으로 전송, 작성하지 않으면 단순 텍스트로 전달.
 			helper.setText(Content, true);
 			mailSender.send(message);
 		
@@ -61,8 +57,8 @@ public class ForgetPasswordMailServiceImpl implements ForgetPasswordMailService 
 	}
 
 	@Override
-	public boolean findMember(String email) {
-		Integer checkExistMember = forgetPasswordMapper.findMember(email);
+	public boolean findByMember(String email) {
+		Integer checkExistMember = forgetPasswordRepository.findMember(email);
 		//존재한다면 true
 		if(checkExistMember >= 1) {
 			return true;
@@ -74,10 +70,8 @@ public class ForgetPasswordMailServiceImpl implements ForgetPasswordMailService 
 
 	@Override
 	public void updatePassword(ForgetMember forgetMember) {
-		log.info("데헷 Impl");
-		log.info("데헷 Impl id = {}" , forgetMember.getEmail());
-		log.info("데헷 Impl pwd = {}" , forgetMember.getPwd());
-		forgetPasswordMapper.updatePassword(forgetMember);
+		log.warn("ForgetPassword update Password error pwd = {}" , forgetMember.getPwd());
+		forgetPasswordRepository.updatePassword(forgetMember);
 	}
 
 }

@@ -56,14 +56,14 @@ public class MyPageController {
 		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
 	}
 	
-	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN" , "ROLE_WITHDRAW"}) 
 	@GetMapping
 	public String mypageForm(Model model) {
 		return "mypage/mypage";
 	}
 	
 	
-	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN" , "ROLE_WITHDRAW"}) 
 	@GetMapping("memberinfo")
 	public String myPageMemberInfoForm(@ModelAttribute("updatePassword") UpdatePassword updatePassword  , Principal principal , Model model , HttpServletRequest request) {
 		String email = principal.getName();
@@ -109,7 +109,7 @@ public class MyPageController {
 		return "mypage/mypagememberinfo";
 	}
 	
-	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN"}) 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_SUPERADMIN" , "ROLE_WITHDRAW"}) 
 	@GetMapping(value="nickNameTabooCheck")
 	public void nickNameTabooCheckAjax(@RequestParam String nickName , HttpServletResponse response){
 		String data = tabooWordService.nickNameCheckSelectTaBoo(nickName);
@@ -124,7 +124,7 @@ public class MyPageController {
 	
 	
 	// Binding ¼ø¼­
-	@Secured({"ROLE_USER" , "ROLE_ADMIN"}) 
+	@Secured({"ROLE_USER" , "ROLE_ADMIN" , "ROLE_WITHDRAW" , "ROLE_SUPERADMIN"}) 
 	@PostMapping("updatepassword")
 	public String updatePassword(@Valid @ModelAttribute UpdatePassword updatePassword , BindingResult bindingResult ,
 			RedirectAttributes redirectAttribute , Principal principal , Model model) {

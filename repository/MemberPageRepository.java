@@ -14,6 +14,8 @@ public interface MemberPageRepository {
 	String userInfoRole(String email);
 	Integer updatePasswordMemberInfo(UpdatePassword updatePassword);
 	String userPasswordSearch(String email);
-	int userInfoUpdate(UserInfoChange userInfoChange);
-	int userDelete(String email);
+	Integer userInfoUpdate(UserInfoChange userInfoChange);
+	Integer userDelete(String email);
+	Integer insertWithDrawAccount(String email);
+	Integer updateWithDrawAccount(String email);
 }

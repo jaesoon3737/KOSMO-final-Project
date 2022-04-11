@@ -1,26 +1,43 @@
-package members.member.service;
+package jejufriends.member.service;
 
+
+import java.util.List;
+
+
+import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
-import jdk.internal.org.jline.utils.Log;
+import jejufriends.member.domain.Member;
+import jejufriends.member.domain.TabooWord;
+import jejufriends.member.domain.UpdatePassword;
+import jejufriends.member.domain.UserInfoChange;
+import jejufriends.member.repository.MemberPageRepository;
+import jejufriends.member.repository.SignUpMemberRepository;
+import jejufriends.member.utils.CustomPattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import members.member.domain.Member;
-import members.member.mapper.MyPageMapper;
+
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberPageServiceImpl implements MemberPageService{
 	
-	private final MyPageMapper myPageMapper;
+	private final MemberPageRepository memberPageRepository;
+	private final SignUpMemberRepository signUpMemberRepository;
+	private static List<TabooWord> taboo;
+	
+	@PostConstruct
+	public void init() {
+		taboo = signUpMemberRepository.tabooNickNameCheckSelect();
+		log.warn("taboo PostConstruct error");
+	}
 	
 	@Override
 	public boolean myPagePwdCheck(String email, String pwd) {
 		log.info("pwdCheck email = {}" , email);
 		log.info("pwdCheck pwd = {}" , pwd);
-		Member myPageCheckObj =	myPageMapper.myPagePwdCheck(email);
+		Member myPageCheckObj =	memberPageRepository.myPagePwdCheck(email);
 		
 		if(myPageCheckObj.getPwd().equals(pwd)) {
 			return true;
@@ -32,8 +49,9 @@ public class MemberPageServiceImpl implements MemberPageService{
 	@Override
 	public Member userInfoSelect(String email) {
 		//PhonNumber **
-		Member member = myPageMapper.userInfoSelect(email);
-		
+		log.info("memberemail = {} " , email);
+		Member member = memberPageRepository.userInfoSelect(email);
+		log.info("member = {} " , member);
 		//kakao 회원이라면 셋팅을 하고 들어가기,
 		if(member.getCheckSnsId() == 1 ) {
 			member.setGender("카카오회원");
@@ -49,7 +67,7 @@ public class MemberPageServiceImpl implements MemberPageService{
 
 	@Override
 	public String userInfoRole(String email) {
-		return myPageMapper.userInfoRole(email);
+		return memberPageRepository.userInfoRole(email);
 	}
 
 	@Override
@@ -96,6 +114,60 @@ public class MemberPageServiceImpl implements MemberPageService{
 			return phoneNumberChangeStar;
 		}
 	
+	}
+
+	@Override
+	public void updatePasswordMemberInfo(UpdatePassword updatePassword) {
+		
+		memberPageRepository.updatePasswordMemberInfo(updatePassword);
+		
+		log.info("updatePassword result");
+	}
+
+	@Override
+	public String userPasswordSearch(String email) {
+		String oldPassword = memberPageRepository.userPasswordSearch(email);
+		return oldPassword;
+	}
+
+	@Override
+	public int userInfoUpdate(UserInfoChange userInfoChange) {
+		
+		String nickName = userInfoChange.getNickName();
+		String phoneNumber = userInfoChange.getPhoneNumber();
+		boolean phoneNumberPatternCheck = phoneNumberValidation(phoneNumber);
+		
+		if(!phoneNumberPatternCheck) {
+			log.info("핸드폰번호가 핸드폰 유형이 아님");
+			
+			return 1;
+		}
+		
+	   for(TabooWord tabooGet : taboo) {
+		   String NickNameContainCheck = tabooGet.getTabooWordCheck();
+		   if(nickName.contains(NickNameContainCheck)) {
+			   //불건전한 닉네임
+			   log.info("불건전한 닉네임");
+			   return 2;
+		   }
+	   }
+	   int UpdateSucessCheck = memberPageRepository.userInfoUpdate(userInfoChange);
+	   if(UpdateSucessCheck == 0 ) {
+		   log.info("업데이트 실패");
+		   return 3;
+	   } else {
+		   return 0;
+	   }
+	}
+	
+	private boolean phoneNumberValidation(String phoneNumber) {
+		return CustomPattern.IS_PHONENUMBER.matcher(phoneNumber).matches();
+	}
+
+	@Override
+	public int userDelete(String email) {
+		int result = memberPageRepository.userDelete(email);
+		return result;
 	}
 
 }
