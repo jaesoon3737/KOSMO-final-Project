@@ -17,4 +17,9 @@ public class HomeController {
 	public String withdrawClear() {
 		return "withdraw/withdrawClear";
 	}
+	
+	@RequestMapping(value = "/jejufriends/contentInsert")
+	public String contentInsertForm() {
+		return "contentInsert/contentInsertForm";
+	}
 }
